@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sight Word Flashcards · Montessori Grammar</title>
+<meta name="description" content="Interactive sight word flashcards with Montessori grammar color coding. The first 100 children's picture book sight words (Green et al., 2024).">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    background: #0a0a0a;
+    font-family: 'Outfit', sans-serif;
+    color: #e8e8e8;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px;
+    overflow-x: hidden;
+  }
+
+  .header { width: 100%; max-width: 680px; margin-bottom: 24px; }
+
+  .title-row {
+    display: flex; align-items: center;
+    justify-content: space-between; margin-bottom: 6px;
+  }
+  .title-left { display: flex; align-items: baseline; gap: 12px; }
+  .title {
+    font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700;
+    letter-spacing: 4px; text-transform: uppercase; color: #555;
+  }
+  .subtitle {
+    font-size: 10px; font-family: 'Space Mono', monospace;
+    color: #444; letter-spacing: 2px; text-transform: uppercase;
+  }
+  .review-badge {
+    font-size: 11px; font-family: 'Space Mono', monospace;
+    letter-spacing: 2px; display: none;
+  }
+  .review-badge.visible { display: inline; }
+
+  /* Pills */
+  .pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .pill {
+    padding: 8px 14px; border-radius: 20px; border: 1px solid #333;
+    background: transparent; color: #999; cursor: pointer; font-size: 12px;
+    font-family: 'Space Mono', monospace; transition: all 0.2s; white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .pill:hover { border-color: #666; color: #ddd; }
+  .pill.active { background: #fff; color: #000; border-color: #fff; }
+  .pill-dot {
+    width: 7px; height: 7px; border-radius: 50%; display: inline-block;
+  }
+
+  /* Controls row */
+  .controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .legend-toggle {
+    background: transparent; border: 1px solid #282828; border-radius: 8px;
+    color: #666; padding: 6px 14px; cursor: pointer;
+    font-family: 'Space Mono', monospace; font-size: 11px; transition: all 0.2s;
+  }
+  .legend-toggle:hover { border-color: #444; color: #999; }
+
+  /* Legend */
+  .legend {
+    background: #111; border-radius: 12px; padding: 16px 20px;
+    margin-bottom: 16px; border: 1px solid #1e1e1e;
+    display: none;
+  }
+  .legend.open { display: block; }
+  .legend-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 24px; }
+  .legend-item { display: flex; align-items: center; gap: 10px; padding: 6px 0; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .legend-label { font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700; }
+  .legend-desc { font-family: 'Outfit', sans-serif; font-size: 11px; color: #666; margin-left: 6px; }
+
+  /* Progress */
+  .progress-track { height: 3px; background: #1a1a1a; border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 2px; transition: width 0.4s ease, background 0.4s ease; }
+  .progress-stats {
+    display: flex; justify-content: space-between; margin-top: 8px;
+    font-family: 'Space Mono', monospace; font-size: 11px; color: #444;
+  }
+  .stat-known { color: #4ade80; }
+  .stat-learning { color: #f87171; }
+
+  /* Card */
+  .card-area { width: 100%; max-width: 560px; }
+  .card {
+    width: 100%; aspect-ratio: 16/10; border-radius: 20px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    cursor: pointer; position: relative; overflow: hidden;
+    transition: background 0.4s ease;
+  }
+  .card-accent-bar {
+    position: absolute; top: 10px; left: 28px; right: 28px;
+    height: 2.5px; border-radius: 2px;
+  }
+  .card-number {
+    position: absolute; top: 22px; left: 24px;
+    font-family: 'Space Mono', monospace; font-size: 12px; opacity: 0.7;
+  }
+  .card-pos {
+    position: absolute; top: 20px; right: 24px;
+    font-family: 'Space Mono', monospace; font-size: 11px;
+    font-weight: 700; letter-spacing: 1px;
+  }
+  .card-hint {
+    position: absolute; bottom: 16px; right: 24px;
+    font-family: 'Space Mono', monospace; font-size: 10px;
+    opacity: 0.2; letter-spacing: 2px;
+  }
+  .card-brand {
+    position: absolute; bottom: 16px; left: 24px;
+    font-family: 'Space Mono', monospace; font-size: 9px;
+    opacity: 0.2; letter-spacing: 1px;
+  }
+  .card-word {
+    font-family: 'Outfit', sans-serif; font-weight: 800;
+    letter-spacing: -2px; transition: all 0.3s ease;
+  }
+  .card-back { text-align: center; padding: 0 40px; }
+  .card-back-word {
+    font-family: 'Outfit', sans-serif; font-weight: 300;
+    font-size: 20px; opacity: 0.5; margin-bottom: 8px;
+  }
+  .card-back-pos {
+    font-family: 'Space Mono', monospace; font-size: 12px;
+    opacity: 0.5; margin-bottom: 16px;
+  }
+  .card-back-sentence {
+    font-family: 'Outfit', sans-serif; font-weight: 400;
+    font-size: 28px; line-height: 1.4;
+  }
+
+  /* Done state */
+  .done-card {
+    width: 100%; aspect-ratio: 16/10; background: #111; border-radius: 20px;
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; border: 1px solid #222;
+  }
+  .done-emoji { font-size: 48px; margin-bottom: 16px; }
+  .done-title { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 28px; color: #fff; margin-bottom: 8px; }
+  .done-stats { font-family: 'Space Mono', monospace; font-size: 13px; color: #666; margin-bottom: 24px; }
+
+  /* Buttons */
+  .actions { display: flex; gap: 16px; margin-top: 28px; }
+  .btn {
+    padding: 14px 32px; border-radius: 12px; border: none; cursor: pointer;
+    font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 15px;
+    transition: all 0.2s; text-transform: uppercase; letter-spacing: 1px;
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn:active { transform: translateY(0); }
+  .btn-learning { background: #1c1c1c; color: #f87171; border: 1px solid #2a2a2a; }
+  .btn-known { background: #fff; color: #000; }
+
+  .keyboard-hints {
+    margin-top: 24px; font-family: 'Space Mono', monospace;
+    font-size: 10px; color: #333; letter-spacing: 1px; text-align: center;
+  }
+
+  /* Animations */
+  @keyframes slideLeft { from { opacity:1; transform:translateX(0); } to { opacity:0; transform:translateX(-120px); } }
+  @keyframes slideRight { from { opacity:1; transform:translateX(0); } to { opacity:0; transform:translateX(120px); } }
+  @keyframes fadeIn { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
+  .anim-enter { animation: fadeIn 0.3s ease-out; }
+  .anim-exit-left { animation: slideLeft 0.3s ease-in forwards; }
+  .anim-exit-right { animation: slideRight 0.3s ease-in forwards; }
+
+  @media (max-width: 600px) {
+    .pills { gap: 5px; }
+    .pill { padding: 6px 10px; font-size: 11px; }
+    .legend-grid { grid-template-columns: 1fr; }
+    .card-back-sentence { font-size: 22px; }
+    .btn { padding: 12px 22px; font-size: 13px; }
+    .keyboard-hints { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header" id="header">
+  <div class="title-row">
+    <div class="title-left">
+      <h1 class="title">SIGHT WORDS</h1>
+      <span class="subtitle">MONTESSORI GRAMMAR</span>
+    </div>
+    <span class="review-badge" id="reviewBadge">REVIEW ROUND</span>
+  </div>
+
+  <div class="pills" id="pills"></div>
+
+  <div class="controls">
+    <button class="legend-toggle" id="legendToggle">▾ Show Color Key</button>
+    <button class="pill" id="shuffleBtn" style="font-size:11px">↻ Shuffle</button>
+  </div>
+
+  <div class="legend" id="legend">
+    <div class="legend-grid" id="legendGrid"></div>
+  </div>
+
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="progress-stats">
+    <span id="countLabel">1 / 100</span>
+    <span class="stat-known" id="knownLabel">✓ 0 known</span>
+    <span class="stat-learning" id="learningLabel">↻ 0 learning</span>
+  </div>
+</div>
+
+<div class="card-area" id="cardArea"></div>
+<div class="actions" id="actions">
+  <button class="btn btn-learning" id="btnLearning">← Still Learning</button>
+  <button class="btn btn-known" id="btnKnown">Got It →</button>
+</div>
+
+<div class="keyboard-hints">SPACE to flip · ← / → to sort · K = know · S = still learning</div>
+
+<script>
+// ===== DATA =====
+const WORDS = [
+  "the","and","a","to","I","you","in","of","it","he","is","was","for","on","that",
+  "with","but","his","all","they","my","so","be","she","up","at","are","one","said",
+  "what","this","when","we","me","have","as","do","like","out","can","her","not",
+  "then","your","no","there","day","just","it's","see","little","time","from","had",
+  "now","will","I'm","go","were","too","them","him","some","big","get","if","good",
+  "don't","down","by","how","know","an","oh","more","their","could","about","back",
+  "who","or","make","into","look","very","would","right","here","love","way","night",
+  "did","new","come","our","two","want","made","over","around"
+];
+
+const WORD_POS = {
+  "the":"article","and":"conjunction","a":"article","to":"preposition",
+  "I":"pronoun","you":"pronoun","in":"preposition","of":"preposition",
+  "it":"pronoun","he":"pronoun","is":"verb","was":"verb",
+  "for":"preposition","on":"preposition","that":"pronoun",
+  "with":"preposition","but":"conjunction","his":"pronoun",
+  "all":"adjective","they":"pronoun","my":"pronoun","so":"adverb",
+  "be":"verb","she":"pronoun","up":"adverb","at":"preposition",
+  "are":"verb","one":"adjective","said":"verb","what":"pronoun",
+  "this":"pronoun","when":"adverb","we":"pronoun","me":"pronoun",
+  "have":"verb","as":"conjunction","do":"verb","like":"verb",
+  "out":"adverb","can":"verb","her":"pronoun","not":"adverb",
+  "then":"adverb","your":"pronoun","no":"adverb","there":"adverb",
+  "day":"noun","just":"adverb","it's":"pronoun","see":"verb",
+  "little":"adjective","time":"noun","from":"preposition","had":"verb",
+  "now":"adverb","will":"verb","I'm":"pronoun","go":"verb",
+  "were":"verb","too":"adverb","them":"pronoun","him":"pronoun",
+  "some":"adjective","big":"adjective","get":"verb","if":"conjunction",
+  "good":"adjective","don't":"verb","down":"adverb","by":"preposition",
+  "how":"adverb","know":"verb","an":"article","oh":"interjection",
+  "more":"adjective","their":"pronoun","could":"verb","about":"preposition",
+  "back":"adverb","who":"pronoun","or":"conjunction","make":"verb",
+  "into":"preposition","look":"verb","very":"adverb","would":"verb",
+  "right":"adjective","here":"adverb","love":"verb","way":"noun",
+  "night":"noun","did":"verb","new":"adjective","come":"verb",
+  "our":"pronoun","two":"adjective","want":"verb","made":"verb",
+  "over":"preposition","around":"preposition"
+};
+
+const M = {
+  verb:         { bg:"#1A0A0A", accent:"#E63946", text:"#F8E0E0", label:"VERB",         symbol:"●", desc:"Action word" },
+  noun:         { bg:"#111111", accent:"#C8C8C8", text:"#EAEAEA", label:"NOUN",         symbol:"▲", desc:"Person, place, or thing" },
+  adjective:    { bg:"#0A0E1A", accent:"#3A6EDB", text:"#D8E4F8", label:"ADJECTIVE",    symbol:"▲", desc:"Describing word" },
+  article:      { bg:"#0C1520", accent:"#7EB8E0", text:"#DCF0FF", label:"ARTICLE",      symbol:"△", desc:"Noun introducer" },
+  pronoun:      { bg:"#140A1A", accent:"#9B59B6", text:"#EAD8F4", label:"PRONOUN",      symbol:"▲", desc:"Stand-in word" },
+  preposition:  { bg:"#081A10", accent:"#27AE60", text:"#D0F0DE", label:"PREPOSITION",  symbol:"☽", desc:"Position & relation" },
+  conjunction:  { bg:"#1A0F10", accent:"#E8A0B0", text:"#F8E8EC", label:"CONJUNCTION",  symbol:"▬", desc:"Connecting word" },
+  adverb:       { bg:"#1A1208", accent:"#E89B2D", text:"#F8ECD8", label:"ADVERB",       symbol:"●", desc:"Modifier (how/when/where)" },
+  interjection: { bg:"#1A1608", accent:"#F1C40F", text:"#FFF8DC", label:"INTERJECTION", symbol:"!", desc:"Exclamation" }
+};
+
+const SENTENCES = {
+  "the":"Pass me the book.","and":"You and I can go.","a":"I saw a bird.",
+  "to":"We need to leave.","I":"I will be there.","you":"Can you help?",
+  "in":"She is in the room.","of":"A cup of water.","it":"Give it to me.",
+  "he":"He ran fast.","is":"The sky is blue.","was":"She was happy.",
+  "for":"This is for you.","on":"The cat is on the bed.","that":"Look at that!",
+  "with":"Come with me.","but":"Small but strong.","his":"That is his coat.",
+  "all":"We ate all of it.","they":"They went home.","my":"This is my turn.",
+  "so":"I was so tired.","be":"Just be yourself.","she":"She left early.",
+  "up":"Stand up now.","at":"Meet me at noon.","are":"You are kind.",
+  "one":"Pick one color.","said":"He said hello.","what":"What happened?",
+  "this":"Read this page.","when":"Call me when ready.","we":"We did it together.",
+  "me":"Tell me more.","have":"I have time.","as":"Fast as lightning.",
+  "do":"What do you think?","like":"I like this song.","out":"Go out and play.",
+  "can":"You can do it.","her":"Give her the note.","not":"I am not sure.",
+  "then":"Eat first, then go.","your":"Bring your bag.","no":"There is no rush.",
+  "there":"Look over there.","day":"What a great day.","just":"Just keep going.",
+  "it's":"It's almost done.","see":"I can see it now.","little":"A little more time.",
+  "time":"It takes time.","from":"A note from home.","had":"She had a plan.",
+  "now":"Start now.","will":"I will try again.","I'm":"I'm on my way.",
+  "go":"Let's go outside.","were":"They were ready.","too":"Me too!",
+  "them":"Help them out.","him":"Ask him first.","some":"Have some water.",
+  "big":"That's a big step.","get":"Go get your coat.","if":"Tell me if you can.",
+  "good":"Good job today.","don't":"I don't mind.","down":"Sit down here.",
+  "by":"Stand by the door.","how":"How does this work?","know":"I know the answer.",
+  "an":"Grab an apple.","oh":"Oh, I see now!","more":"Tell me more.",
+  "their":"That's their choice.","could":"You could try.","about":"Think about it.",
+  "back":"I'll be right back.","who":"Who said that?","or":"Now or later?",
+  "make":"Let's make a plan.","into":"Walk into the room.","look":"Look at this!",
+  "very":"That's very cool.","would":"I would like that.","right":"You're right.",
+  "here":"Come over here.","love":"I love this place.","way":"Find a better way.",
+  "night":"Good night.","did":"You did great.","new":"Try something new.",
+  "come":"Come with us.","our":"This is our spot.","two":"Pick two options.",
+  "want":"What do you want?","made":"She made it work.","over":"Start over fresh.",
+  "around":"Look around you."
+};
+
+const FILTERS = [
+  { name:"All Words", pos:null },
+  { name:"Verbs", pos:"verb" },
+  { name:"Pronouns", pos:"pronoun" },
+  { name:"Adverbs", pos:"adverb" },
+  { name:"Prepositions", pos:"preposition" },
+  { name:"Adjectives", pos:"adjective" },
+  { name:"Conjunctions", pos:"conjunction" },
+  { name:"Articles", pos:"article" },
+  { name:"Nouns", pos:"noun" }
+];
+
+// ===== STATE =====
+let currentFilter = "All Words";
+let deck = [];
+let idx = 0;
+let flipped = false;
+let known = new Set();
+let learning = new Set();
+let mode = "study";
+let animating = false;
+
+// ===== HELPERS =====
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function getFiltered(posKey) {
+  if (!posKey) return [...WORDS];
+  return WORDS.filter(w => WORD_POS[w] === posKey);
+}
+
+// ===== DOM REFS =====
+const $pills = document.getElementById("pills");
+const $legendToggle = document.getElementById("legendToggle");
+const $legend = document.getElementById("legend");
+const $legendGrid = document.getElementById("legendGrid");
+const $shuffleBtn = document.getElementById("shuffleBtn");
+const $progressFill = document.getElementById("progressFill");
+const $countLabel = document.getElementById("countLabel");
+const $knownLabel = document.getElementById("knownLabel");
+const $learningLabel = document.getElementById("learningLabel");
+const $cardArea = document.getElementById("cardArea");
+const $actions = document.getElementById("actions");
+const $btnLearning = document.getElementById("btnLearning");
+const $btnKnown = document.getElementById("btnKnown");
+const $reviewBadge = document.getElementById("reviewBadge");
+
+// ===== BUILD UI =====
+function buildPills() {
+  $pills.innerHTML = "";
+  FILTERS.forEach(f => {
+    const btn = document.createElement("button");
+    btn.className = "pill" + (currentFilter === f.name ? " active" : "");
+    const pal = f.pos ? M[f.pos] : null;
+
+    if (currentFilter === f.name && pal) {
+      btn.style.background = pal.accent;
+      btn.style.borderColor = pal.accent;
+      btn.style.color = "#000";
+    }
+
+    if (pal && currentFilter !== f.name) {
+      const dot = document.createElement("span");
+      dot.className = "pill-dot";
+      dot.style.background = pal.accent;
+      btn.appendChild(dot);
+    }
+
+    btn.appendChild(document.createTextNode(f.name));
+    btn.addEventListener("click", () => { currentFilter = f.name; initDeck(); });
+    $pills.appendChild(btn);
+  });
+}
+
+function buildLegend() {
+  $legendGrid.innerHTML = "";
+  Object.entries(M).forEach(([key, m]) => {
+    const item = document.createElement("div");
+    item.className = "legend-item";
+    item.innerHTML = `
+      <div class="legend-dot" style="background:${m.accent}"></div>
+      <div>
+        <span class="legend-label" style="color:${m.accent}">${m.symbol} ${m.label}</span>
+        <span class="legend-desc">${m.desc}</span>
+      </div>`;
+    $legendGrid.appendChild(item);
+  });
+}
+
+// ===== RENDER =====
+function render() {
+  const word = deck[idx];
+  const pos = word ? WORD_POS[word] : "verb";
+  const pal = M[pos];
+  const total = deck.length;
+  const progress = total > 0 ? (idx / total) * 100 : 0;
+  const wordNum = word ? WORDS.indexOf(word) + 1 : 0;
+  const done = total > 0 && idx >= total - 1 && learning.size === 0 && flipped;
+
+  // Progress
+  $progressFill.style.width = progress + "%";
+  $progressFill.style.background = pal ? pal.accent : "#666";
+  $countLabel.textContent = `${idx + 1} / ${total}`;
+  $knownLabel.textContent = `✓ ${known.size} known`;
+  $learningLabel.textContent = `↻ ${learning.size} learning`;
+
+  // Review badge
+  $reviewBadge.className = "review-badge" + (mode === "review" ? " visible" : "");
+  if (pal) $reviewBadge.style.color = pal.accent;
+
+  // Card
+  if (done) {
+    $cardArea.innerHTML = `
+      <div class="done-card">
+        <div class="done-emoji">🎯</div>
+        <div class="done-title">Deck Complete</div>
+        <div class="done-stats">${known.size} mastered · ${learning.size} to review</div>
+        <button class="btn btn-known" id="btnAgain">Go Again</button>
+      </div>`;
+    document.getElementById("btnAgain").addEventListener("click", initDeck);
+    $actions.style.display = "none";
+  } else if (word) {
+    const fontSize = word.length > 5 ? 72 : 96;
+    if (!flipped) {
+      $cardArea.innerHTML = `
+        <div class="card anim-enter" id="theCard"
+             style="background:${pal.bg};border:1px solid ${pal.accent}22">
+          <div class="card-accent-bar" style="background:${pal.accent}"></div>
+          <span class="card-number" style="color:${pal.accent}">#${String(wordNum).padStart(3,"0")}</span>
+          <span class="card-pos" style="color:${pal.accent}">${pal.symbol} ${pal.label}</span>
+          <span class="card-hint" style="color:${pal.text}">TAP TO FLIP</span>
+          <span class="card-brand" style="color:${pal.accent}">MONTESSORI GRAMMAR</span>
+          <span class="card-word" style="color:${pal.text};font-size:${fontSize}px;text-shadow:0 0 60px ${pal.accent}33">${word}</span>
+        </div>`;
+    } else {
+      $cardArea.innerHTML = `
+        <div class="card anim-enter" id="theCard"
+             style="background:${pal.bg};border:1px solid ${pal.accent}22">
+          <div class="card-accent-bar" style="background:${pal.accent}"></div>
+          <span class="card-number" style="color:${pal.accent}">#${String(wordNum).padStart(3,"0")}</span>
+          <span class="card-pos" style="color:${pal.accent}">${pal.symbol} ${pal.label}</span>
+          <span class="card-hint" style="color:${pal.text}">EXAMPLE</span>
+          <span class="card-brand" style="color:${pal.accent}">MONTESSORI GRAMMAR</span>
+          <div class="card-back">
+            <div class="card-back-word" style="color:${pal.text}">${word}</div>
+            <div class="card-back-pos" style="color:${pal.accent}">${pal.desc}</div>
+            <div class="card-back-sentence" style="color:${pal.accent}">${SENTENCES[word]}</div>
+          </div>
+        </div>`;
+    }
+    document.getElementById("theCard").addEventListener("click", flipCard);
+    $actions.style.display = "flex";
+  }
+}
+
+// ===== ACTIONS =====
+function initDeck() {
+  const f = FILTERS.find(f => f.name === currentFilter);
+  deck = shuffle(getFiltered(f ? f.pos : null));
+  idx = 0; flipped = false;
+  known = new Set(); learning = new Set();
+  mode = "study";
+  buildPills();
+  render();
+}
+
+function flipCard() {
+  if (animating) return;
+  flipped = !flipped;
+  render();
+}
+
+function advance(dir) {
+  if (animating) return;
+  animating = true;
+  const card = document.getElementById("theCard");
+  if (card) card.className = "card " + (dir === "left" ? "anim-exit-left" : "anim-exit-right");
+
+  setTimeout(() => {
+    flipped = false;
+    animating = false;
+    if (idx < deck.length - 1) {
+      idx++;
+    } else if (learning.size > 0 && mode === "study") {
+      deck = shuffle([...learning]);
+      idx = 0;
+      learning = new Set();
+      mode = "review";
+    }
+    render();
+  }, 300);
+}
+
+function markKnown() {
+  if (!deck[idx] || animating) return;
+  known.add(deck[idx]);
+  advance("right");
+}
+
+function markLearning() {
+  if (!deck[idx] || animating) return;
+  learning.add(deck[idx]);
+  advance("left");
+}
+
+// ===== EVENTS =====
+$btnKnown.addEventListener("click", markKnown);
+$btnLearning.addEventListener("click", markLearning);
+$shuffleBtn.addEventListener("click", initDeck);
+
+let legendOpen = false;
+$legendToggle.addEventListener("click", () => {
+  legendOpen = !legendOpen;
+  $legend.className = "legend" + (legendOpen ? " open" : "");
+  $legendToggle.textContent = (legendOpen ? "▴ Hide" : "▾ Show") + " Color Key";
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === " " || e.key === "Enter") { e.preventDefault(); flipCard(); }
+  if (e.key === "ArrowRight" || e.key === "k") markKnown();
+  if (e.key === "ArrowLeft" || e.key === "s") markLearning();
+});
+
+// ===== INIT =====
+buildLegend();
+initDeck();
+</script>
+</body>
+</html>
