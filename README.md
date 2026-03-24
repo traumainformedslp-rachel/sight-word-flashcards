@@ -8,7 +8,7 @@ Designed for **older students** learning to read — clean, modern, dark-themed 
 
 Open `index.html` in any browser. No build step, no dependencies, no install.
 
-**[→ Try it on GitHub Pages](https://yourusername.github.io/sight-word-flashcards/)**
+**[→ Try it on GitHub Pages](https://traumainformedslp-rachel.github.io/sight-word-flashcards/)**
 
 ## Features
 
