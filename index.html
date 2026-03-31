@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,16 +10,77 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+  :root {
+    --bg: #0a0a0a;
+    --card-bg: #111;
+    --border: #1e1e1e;
+    --text: #e8e8e8;
+    --text-muted: #999;
+    --text-dim: #555;
+    --text-sub: #888;
+    --pill-border: #333;
+    --pill-hover-border: #666;
+    --pill-hover-text: #ddd;
+    --pill-active-bg: #fff;
+    --pill-active-text: #000;
+    --legend-toggle-border: #282828;
+    --legend-toggle-text: #666;
+    --legend-toggle-hover-border: #444;
+    --legend-toggle-hover-text: #999;
+    --legend-desc-color: #666;
+    --progress-track: #1a1a1a;
+    --progress-stats: #444;
+    --done-border: #222;
+    --done-title-color: #fff;
+    --done-stats-color: #666;
+    --btn-learning-bg: #1c1c1c;
+    --btn-learning-border: #2a2a2a;
+    --btn-known-bg: #fff;
+    --btn-known-text: #000;
+    --keyboard-hints: #333;
+  }
+
+  [data-theme="light"] {
+    --bg: #f5f5f0;
+    --card-bg: #ffffff;
+    --border: #e0e0e0;
+    --text: #222;
+    --text-muted: #666;
+    --text-dim: #999;
+    --text-sub: #777;
+    --pill-border: #ccc;
+    --pill-hover-border: #999;
+    --pill-hover-text: #333;
+    --pill-active-bg: #222;
+    --pill-active-text: #fff;
+    --legend-toggle-border: #ccc;
+    --legend-toggle-text: #888;
+    --legend-toggle-hover-border: #999;
+    --legend-toggle-hover-text: #555;
+    --legend-desc-color: #888;
+    --progress-track: #e0e0e0;
+    --progress-stats: #999;
+    --done-border: #e0e0e0;
+    --done-title-color: #222;
+    --done-stats-color: #888;
+    --btn-learning-bg: #fff;
+    --btn-learning-border: #e0e0e0;
+    --btn-known-bg: #222;
+    --btn-known-text: #fff;
+    --keyboard-hints: #bbb;
+  }
+
   body {
     min-height: 100vh;
-    background: #0a0a0a;
+    background: var(--bg);
     font-family: 'Outfit', sans-serif;
-    color: #e8e8e8;
+    color: var(--text);
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 24px 16px;
     overflow-x: hidden;
+    transition: background 0.3s, color 0.3s;
   }
 
   .header { width: 100%; max-width: 680px; margin-bottom: 24px; }
@@ -31,11 +92,11 @@
   .title-left { display: flex; align-items: baseline; gap: 12px; }
   .title {
     font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700;
-    letter-spacing: 4px; text-transform: uppercase; color: #555;
+    letter-spacing: 4px; text-transform: uppercase; color: var(--text-dim);
   }
   .subtitle {
     font-size: 10px; font-family: 'Space Mono', monospace;
-    color: #444; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase;
   }
   .review-badge {
     font-size: 11px; font-family: 'Space Mono', monospace;
@@ -43,16 +104,25 @@
   }
   .review-badge.visible { display: inline; }
 
+  /* Theme toggle */
+  .theme-toggle {
+    background: transparent; border: 1px solid var(--pill-border); border-radius: 20px;
+    color: var(--text-muted); padding: 6px 14px; cursor: pointer;
+    font-family: 'Space Mono', monospace; font-size: 11px; transition: all 0.2s;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .theme-toggle:hover { border-color: var(--pill-hover-border); color: var(--pill-hover-text); }
+
   /* Pills */
   .pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
   .pill {
-    padding: 8px 14px; border-radius: 20px; border: 1px solid #333;
-    background: transparent; color: #999; cursor: pointer; font-size: 12px;
+    padding: 8px 14px; border-radius: 20px; border: 1px solid var(--pill-border);
+    background: transparent; color: var(--text-muted); cursor: pointer; font-size: 12px;
     font-family: 'Space Mono', monospace; transition: all 0.2s; white-space: nowrap;
     display: inline-flex; align-items: center; gap: 6px;
   }
-  .pill:hover { border-color: #666; color: #ddd; }
-  .pill.active { background: #fff; color: #000; border-color: #fff; }
+  .pill:hover { border-color: var(--pill-hover-border); color: var(--pill-hover-text); }
+  .pill.active { background: var(--pill-active-bg); color: var(--pill-active-text); border-color: var(--pill-active-bg); }
   .pill-dot {
     width: 7px; height: 7px; border-radius: 50%; display: inline-block;
   }
@@ -60,31 +130,31 @@
   /* Controls row */
   .controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
   .legend-toggle {
-    background: transparent; border: 1px solid #282828; border-radius: 8px;
-    color: #666; padding: 6px 14px; cursor: pointer;
+    background: transparent; border: 1px solid var(--legend-toggle-border); border-radius: 8px;
+    color: var(--legend-toggle-text); padding: 6px 14px; cursor: pointer;
     font-family: 'Space Mono', monospace; font-size: 11px; transition: all 0.2s;
   }
-  .legend-toggle:hover { border-color: #444; color: #999; }
+  .legend-toggle:hover { border-color: var(--legend-toggle-hover-border); color: var(--legend-toggle-hover-text); }
 
   /* Legend */
   .legend {
-    background: #111; border-radius: 12px; padding: 16px 20px;
-    margin-bottom: 16px; border: 1px solid #1e1e1e;
-    display: none;
+    background: var(--card-bg); border-radius: 12px; padding: 16px 20px;
+    margin-bottom: 16px; border: 1px solid var(--border);
+    display: none; transition: background 0.3s, border-color 0.3s;
   }
   .legend.open { display: block; }
   .legend-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 24px; }
   .legend-item { display: flex; align-items: center; gap: 10px; padding: 6px 0; }
   .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
   .legend-label { font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700; }
-  .legend-desc { font-family: 'Outfit', sans-serif; font-size: 11px; color: #666; margin-left: 6px; }
+  .legend-desc { font-family: 'Outfit', sans-serif; font-size: 11px; color: var(--legend-desc-color); margin-left: 6px; }
 
   /* Progress */
-  .progress-track { height: 3px; background: #1a1a1a; border-radius: 2px; overflow: hidden; }
+  .progress-track { height: 3px; background: var(--progress-track); border-radius: 2px; overflow: hidden; }
   .progress-fill { height: 100%; border-radius: 2px; transition: width 0.4s ease, background 0.4s ease; }
   .progress-stats {
     display: flex; justify-content: space-between; margin-top: 8px;
-    font-family: 'Space Mono', monospace; font-size: 11px; color: #444;
+    font-family: 'Space Mono', monospace; font-size: 11px; color: var(--progress-stats);
   }
   .stat-known { color: #4ade80; }
   .stat-learning { color: #f87171; }
@@ -141,13 +211,14 @@
 
   /* Done state */
   .done-card {
-    width: 100%; aspect-ratio: 16/10; background: #111; border-radius: 20px;
+    width: 100%; aspect-ratio: 16/10; background: var(--card-bg); border-radius: 20px;
     display: flex; flex-direction: column; align-items: center;
-    justify-content: center; border: 1px solid #222;
+    justify-content: center; border: 1px solid var(--done-border);
+    transition: background 0.3s, border-color 0.3s;
   }
   .done-emoji { font-size: 48px; margin-bottom: 16px; }
-  .done-title { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 28px; color: #fff; margin-bottom: 8px; }
-  .done-stats { font-family: 'Space Mono', monospace; font-size: 13px; color: #666; margin-bottom: 24px; }
+  .done-title { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 28px; color: var(--done-title-color); margin-bottom: 8px; }
+  .done-stats { font-family: 'Space Mono', monospace; font-size: 13px; color: var(--done-stats-color); margin-bottom: 24px; }
 
   /* Buttons */
   .actions { display: flex; gap: 16px; margin-top: 28px; }
@@ -158,12 +229,12 @@
   }
   .btn:hover { transform: translateY(-2px); }
   .btn:active { transform: translateY(0); }
-  .btn-learning { background: #1c1c1c; color: #f87171; border: 1px solid #2a2a2a; }
-  .btn-known { background: #fff; color: #000; }
+  .btn-learning { background: var(--btn-learning-bg); color: #f87171; border: 1px solid var(--btn-learning-border); }
+  .btn-known { background: var(--btn-known-bg); color: var(--btn-known-text); }
 
   .keyboard-hints {
     margin-top: 24px; font-family: 'Space Mono', monospace;
-    font-size: 10px; color: #333; letter-spacing: 1px; text-align: center;
+    font-size: 10px; color: var(--keyboard-hints); letter-spacing: 1px; text-align: center;
   }
 
   /* Animations */
@@ -173,6 +244,11 @@
   .anim-enter { animation: fadeIn 0.3s ease-out; }
   .anim-exit-left { animation: slideLeft 0.3s ease-in forwards; }
   .anim-exit-right { animation: slideRight 0.3s ease-in forwards; }
+
+  @media print {
+    body { background: #fff !important; color: #222 !important; }
+    .theme-toggle { display: none; }
+  }
 
   @media (max-width: 600px) {
     .pills { gap: 5px; }
@@ -192,7 +268,10 @@
       <h1 class="title">SIGHT WORDS</h1>
       <span class="subtitle">MONTESSORI GRAMMAR</span>
     </div>
-    <span class="review-badge" id="reviewBadge">REVIEW ROUND</span>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span class="review-badge" id="reviewBadge">REVIEW ROUND</span>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">&#9788; Light</button>
+    </div>
   </div>
 
   <div class="pills" id="pills"></div>
@@ -264,17 +343,50 @@ const WORD_POS = {
   "over":"preposition","around":"preposition"
 };
 
-const M = {
-  verb:         { bg:"#1A0A0A", accent:"#E63946", text:"#F8E0E0", label:"VERB",         symbol:"●", desc:"Action word" },
-  noun:         { bg:"#111111", accent:"#C8C8C8", text:"#EAEAEA", label:"NOUN",         symbol:"▲", desc:"Person, place, or thing" },
-  adjective:    { bg:"#0A0E1A", accent:"#3A6EDB", text:"#D8E4F8", label:"ADJECTIVE",    symbol:"▲", desc:"Describing word" },
-  article:      { bg:"#0C1520", accent:"#7EB8E0", text:"#DCF0FF", label:"ARTICLE",      symbol:"△", desc:"Noun introducer" },
-  pronoun:      { bg:"#140A1A", accent:"#9B59B6", text:"#EAD8F4", label:"PRONOUN",      symbol:"▲", desc:"Stand-in word" },
-  preposition:  { bg:"#081A10", accent:"#27AE60", text:"#D0F0DE", label:"PREPOSITION",  symbol:"☽", desc:"Position & relation" },
-  conjunction:  { bg:"#1A0F10", accent:"#E8A0B0", text:"#F8E8EC", label:"CONJUNCTION",  symbol:"▬", desc:"Connecting word" },
-  adverb:       { bg:"#1A1208", accent:"#E89B2D", text:"#F8ECD8", label:"ADVERB",       symbol:"●", desc:"Modifier (how/when/where)" },
-  interjection: { bg:"#1A1608", accent:"#F1C40F", text:"#FFF8DC", label:"INTERJECTION", symbol:"!", desc:"Exclamation" }
+const M_DARK = {
+  verb:         { bg:"#1A0A0A", accent:"#E63946", text:"#F8E0E0" },
+  noun:         { bg:"#111111", accent:"#C8C8C8", text:"#EAEAEA" },
+  adjective:    { bg:"#0A0E1A", accent:"#3A6EDB", text:"#D8E4F8" },
+  article:      { bg:"#0C1520", accent:"#7EB8E0", text:"#DCF0FF" },
+  pronoun:      { bg:"#140A1A", accent:"#9B59B6", text:"#EAD8F4" },
+  preposition:  { bg:"#081A10", accent:"#27AE60", text:"#D0F0DE" },
+  conjunction:  { bg:"#1A0F10", accent:"#E8A0B0", text:"#F8E8EC" },
+  adverb:       { bg:"#1A1208", accent:"#E89B2D", text:"#F8ECD8" },
+  interjection: { bg:"#1A1608", accent:"#F1C40F", text:"#FFF8DC" }
 };
+const M_LIGHT = {
+  verb:         { bg:"#FFF0F0", accent:"#C62828", text:"#4A1010" },
+  noun:         { bg:"#F5F5F5", accent:"#555555", text:"#222222" },
+  adjective:    { bg:"#EEF2FF", accent:"#2A56B0", text:"#1A2A50" },
+  article:      { bg:"#EAF4FC", accent:"#4A90B8", text:"#1A3A50" },
+  pronoun:      { bg:"#F5EEFA", accent:"#7B3F9B", text:"#3A1A4A" },
+  preposition:  { bg:"#EAFAF0", accent:"#1E8A4A", text:"#0A3A1A" },
+  conjunction:  { bg:"#FFF0F2", accent:"#C07080", text:"#4A2028" },
+  adverb:       { bg:"#FFF6E8", accent:"#C07A10", text:"#4A2E08" },
+  interjection: { bg:"#FFFCE8", accent:"#B8960A", text:"#3A3008" }
+};
+const M_META = {
+  verb:         { label:"VERB",         symbol:"●", desc:"Action word" },
+  noun:         { label:"NOUN",         symbol:"▲", desc:"Person, place, or thing" },
+  adjective:    { label:"ADJECTIVE",    symbol:"▲", desc:"Describing word" },
+  article:      { label:"ARTICLE",      symbol:"△", desc:"Noun introducer" },
+  pronoun:      { label:"PRONOUN",      symbol:"▲", desc:"Stand-in word" },
+  preposition:  { label:"PREPOSITION",  symbol:"☽", desc:"Position & relation" },
+  conjunction:  { label:"CONJUNCTION",  symbol:"▬", desc:"Connecting word" },
+  adverb:       { label:"ADVERB",       symbol:"●", desc:"Modifier (how/when/where)" },
+  interjection: { label:"INTERJECTION", symbol:"!", desc:"Exclamation" }
+};
+
+let isDark = false;
+function getM() {
+  const colors = isDark ? M_DARK : M_LIGHT;
+  const m = {};
+  for (const k of Object.keys(M_META)) {
+    m[k] = { ...M_META[k], ...colors[k] };
+  }
+  return m;
+}
+let M = getM();
 
 const SENTENCES = {
   "the":"Pass me the book.","and":"You and I can go.","a":"I saw a bird.",
@@ -377,7 +489,7 @@ function buildPills() {
     if (currentFilter === f.name && pal) {
       btn.style.background = pal.accent;
       btn.style.borderColor = pal.accent;
-      btn.style.color = "#000";
+      btn.style.color = isDark ? "#000" : "#fff";
     }
 
     if (pal && currentFilter !== f.name) {
@@ -534,6 +646,18 @@ $legendToggle.addEventListener("click", () => {
   legendOpen = !legendOpen;
   $legend.className = "legend" + (legendOpen ? " open" : "");
   $legendToggle.textContent = (legendOpen ? "▴ Hide" : "▾ Show") + " Color Key";
+});
+
+// Theme toggle
+const $themeToggle = document.getElementById("themeToggle");
+$themeToggle.addEventListener("click", () => {
+  isDark = !isDark;
+  document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
+  $themeToggle.innerHTML = isDark ? "&#9790; Dark" : "&#9788; Light";
+  M = getM();
+  buildLegend();
+  buildPills();
+  render();
 });
 
 document.addEventListener("keydown", (e) => {
