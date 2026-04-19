@@ -16,8 +16,12 @@ Open `index.html` in any browser. No build step, no dependencies, no install.
 - **Filter by grammar category** — drill just verbs, just pronouns, etc.
 - **Flip cards** — front shows the word, back shows a grammar label + example sentence
 - **Sort as you go** — mark words "Got It" or "Still Learning"; unlearned words auto-loop for review
+- **Start Over** — traffic-light reset button clears progress and reshuffles mid-session
+- **Track progress** — export a dated JSON report of known/learning words (great for classroom data)
+- **Print free flashcards** — one-click print-friendly sheet (6 cards per page with example sentences) — no PDF needed
 - **Keyboard shortcuts** — Space to flip, arrow keys to sort (K/S also work)
 - **Collapsible color key** for reference
+- **Light / Dark theme** toggle
 - **Mobile-responsive** — works on phones and tablets
 - **Zero dependencies** — single HTML file, runs offline
 

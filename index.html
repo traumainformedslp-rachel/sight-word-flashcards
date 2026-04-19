@@ -237,6 +237,24 @@
     font-size: 10px; color: var(--keyboard-hints); letter-spacing: 1px; text-align: center;
   }
 
+  /* Control group (right-aligned buttons in the controls row) */
+  .control-group { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+
+  /* Traffic-light dot cluster on the Start Over button */
+  .traffic-lights { display: inline-flex; gap: 3px; margin-right: 2px; }
+  .traffic-lights .tl {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: currentColor; opacity: 0.35;
+    transition: opacity 0.25s, transform 0.25s;
+  }
+  #startOverBtn:hover .tl.r { background: #E63946; opacity: 1; }
+  #startOverBtn:hover .tl.y { background: #E8A12D; opacity: 1; transition-delay: 0.08s; }
+  #startOverBtn:hover .tl.g { background: #27AE60; opacity: 1; transition-delay: 0.16s; }
+  #startOverBtn.flash .tl.r { background: #E63946; opacity: 1; animation: tlPulse 0.6s ease; }
+  #startOverBtn.flash .tl.y { background: #E8A12D; opacity: 1; animation: tlPulse 0.6s ease 0.15s; }
+  #startOverBtn.flash .tl.g { background: #27AE60; opacity: 1; animation: tlPulse 0.6s ease 0.3s; }
+  @keyframes tlPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.6); } }
+
   /* Animations */
   @keyframes slideLeft { from { opacity:1; transform:translateX(0); } to { opacity:0; transform:translateX(-120px); } }
   @keyframes slideRight { from { opacity:1; transform:translateX(0); } to { opacity:0; transform:translateX(120px); } }
@@ -245,9 +263,75 @@
   .anim-exit-left { animation: slideLeft 0.3s ease-in forwards; }
   .anim-exit-right { animation: slideRight 0.3s ease-in forwards; }
 
+  /* Print sheet (hidden on screen, visible when printing) */
+  .print-sheets { display: none; }
+  .print-sheets .print-cover {
+    padding: 40px 32px; border-bottom: 2px solid #000;
+  }
+  .print-sheets .print-cover h1 {
+    font-family: 'Outfit', sans-serif; font-weight: 800;
+    font-size: 28px; margin-bottom: 6px; color: #000;
+  }
+  .print-sheets .print-cover p {
+    font-family: 'Space Mono', monospace; font-size: 11px;
+    color: #444; letter-spacing: 1px; margin-bottom: 4px;
+  }
+  .print-sheets .print-key {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 4px 14px; margin-top: 14px;
+  }
+  .print-sheets .print-key-item {
+    display: flex; align-items: center; gap: 8px;
+    font-family: 'Space Mono', monospace; font-size: 10px; color: #222;
+  }
+  .print-sheets .print-key-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+  }
+  .print-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px; padding: 16px;
+  }
+  .print-card {
+    border: 2px solid #000; border-radius: 10px;
+    aspect-ratio: 3/2;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    position: relative; padding: 10px;
+    page-break-inside: avoid; break-inside: avoid;
+  }
+  .print-card-bar {
+    position: absolute; top: 6px; left: 10px; right: 10px; height: 3px; border-radius: 2px;
+  }
+  .print-card-num {
+    position: absolute; top: 10px; left: 12px;
+    font-family: 'Space Mono', monospace; font-size: 9px;
+  }
+  .print-card-pos {
+    position: absolute; top: 10px; right: 12px;
+    font-family: 'Space Mono', monospace; font-size: 9px;
+    font-weight: 700; letter-spacing: 1px;
+  }
+  .print-card-word {
+    font-family: 'Outfit', sans-serif; font-weight: 800;
+    font-size: 54px; letter-spacing: -1.5px; text-align: center;
+  }
+  .print-card-sent {
+    position: absolute; bottom: 10px; left: 12px; right: 12px;
+    font-family: 'Outfit', sans-serif; font-size: 11px;
+    text-align: center; font-style: italic;
+  }
+
   @media print {
-    body { background: #fff !important; color: #222 !important; }
-    .theme-toggle { display: none; }
+    @page { margin: 0.4in; size: letter; }
+    body {
+      background: #fff !important; color: #000 !important;
+      padding: 0 !important; display: block !important;
+    }
+    .header, .card-area, .actions, .keyboard-hints, .theme-toggle,
+    body > div:not(.print-sheets):not(.header) { display: none !important; }
+    .print-sheets { display: block !important; }
+    .print-grid { page-break-after: always; }
   }
 
   @media (max-width: 600px) {
@@ -257,6 +341,9 @@
     .card-back-sentence { font-size: 22px; }
     .btn { padding: 12px 22px; font-size: 13px; }
     .keyboard-hints { display: none; }
+    .controls { flex-wrap: wrap; gap: 8px; }
+    .control-group { gap: 4px; }
+    .control-group .pill { padding: 6px 9px; font-size: 10px; }
   }
 </style>
 </head>
@@ -278,7 +365,15 @@
 
   <div class="controls">
     <button class="legend-toggle" id="legendToggle">▾ Show Color Key</button>
-    <button class="pill" id="shuffleBtn" style="font-size:11px">↻ Shuffle</button>
+    <div class="control-group">
+      <button class="pill" id="startOverBtn" style="font-size:11px" title="Reset the deck and clear progress">
+        <span class="traffic-lights" aria-hidden="true"><span class="tl r"></span><span class="tl y"></span><span class="tl g"></span></span>
+        Start Over
+      </button>
+      <button class="pill" id="trackBtn" style="font-size:11px" title="Download a progress report (JSON)">⤓ Track</button>
+      <button class="pill" id="printBtn" style="font-size:11px" title="Print free flashcards">⎙ Print</button>
+      <button class="pill" id="shuffleBtn" style="font-size:11px" title="Reshuffle the current deck">↻ Shuffle</button>
+    </div>
   </div>
 
   <div class="legend" id="legend">
@@ -298,6 +393,8 @@
   <button class="btn btn-learning" id="btnLearning">← Still Learning</button>
   <button class="btn btn-known" id="btnKnown">Got It →</button>
 </div>
+
+<div class="print-sheets" id="printSheets" aria-hidden="true"></div>
 
 <div class="keyboard-hints">SPACE to flip · ← / → to sort · K = know · S = still learning</div>
 <div style="margin-top:16px;text-align:center;">
@@ -646,6 +743,98 @@ function markLearning() {
 $btnKnown.addEventListener("click", markKnown);
 $btnLearning.addEventListener("click", markLearning);
 $shuffleBtn.addEventListener("click", initDeck);
+
+// Start Over — full reset with a traffic-light pulse
+const $startOverBtn = document.getElementById("startOverBtn");
+$startOverBtn.addEventListener("click", () => {
+  $startOverBtn.classList.add("flash");
+  setTimeout(() => $startOverBtn.classList.remove("flash"), 900);
+  initDeck();
+});
+
+// Track — download a JSON progress report (mirrors the planner app)
+const $trackBtn = document.getElementById("trackBtn");
+$trackBtn.addEventListener("click", () => {
+  const f = FILTERS.find(f => f.name === currentFilter);
+  const total = getFiltered(f ? f.pos : null).length;
+  const report = {
+    app: "Sight Word Flashcards",
+    date: new Date().toISOString().split("T")[0],
+    timestamp: new Date().toISOString(),
+    filter: currentFilter,
+    mode,
+    progress: {
+      position: Math.min(idx + 1, deck.length),
+      deckSize: deck.length,
+      totalInFilter: total,
+      knownCount: known.size,
+      learningCount: learning.size,
+      percentKnown: total ? Math.round((known.size / total) * 100) : 0
+    },
+    known: [...known],
+    learning: [...learning]
+  };
+  const stamp = report.date;
+  const safeFilter = currentFilter.toLowerCase().replace(/\s+/g, "-");
+  const blob = new Blob([JSON.stringify(report, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `sight-words-progress-${safeFilter}-${stamp}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+// Print — build a print-friendly sheet of every card in the current filter
+const $printBtn = document.getElementById("printBtn");
+const $printSheets = document.getElementById("printSheets");
+function buildPrintSheets() {
+  const f = FILTERS.find(f => f.name === currentFilter);
+  const words = getFiltered(f ? f.pos : null);
+  const keyItems = Object.entries(M_META).map(([key, meta]) => {
+    const color = M_LIGHT[key].accent;
+    return `<div class="print-key-item">
+      <span class="print-key-dot" style="background:${color}"></span>
+      <span><strong>${meta.symbol} ${meta.label}</strong> — ${meta.desc}</span>
+    </div>`;
+  }).join("");
+
+  const cards = words.map(w => {
+    const pos = WORD_POS[w];
+    const pal = M_LIGHT[pos];
+    const meta = M_META[pos];
+    const num = WORDS.indexOf(w) + 1;
+    return `<div class="print-card" style="background:${pal.bg};border-color:${pal.accent}">
+      <div class="print-card-bar" style="background:${pal.accent}"></div>
+      <span class="print-card-num" style="color:${pal.accent}">#${String(num).padStart(3,"0")}</span>
+      <span class="print-card-pos" style="color:${pal.accent}">${meta.symbol} ${meta.label}</span>
+      <div class="print-card-word" style="color:${pal.text}">${w}</div>
+      <div class="print-card-sent" style="color:${pal.accent}">${SENTENCES[w]}</div>
+    </div>`;
+  });
+
+  const pages = [];
+  const perPage = 6;
+  for (let i = 0; i < cards.length; i += perPage) {
+    pages.push(`<div class="print-grid">${cards.slice(i, i + perPage).join("")}</div>`);
+  }
+
+  $printSheets.innerHTML = `
+    <div class="print-cover">
+      <h1>Sight Word Flashcards</h1>
+      <p>Montessori Grammar · ${currentFilter} · ${words.length} cards</p>
+      <p>Print on cardstock · 6 cards per sheet · Cut along borders</p>
+      <div class="print-key">${keyItems}</div>
+    </div>
+    ${pages.join("")}
+  `;
+}
+$printBtn.addEventListener("click", () => {
+  buildPrintSheets();
+  setTimeout(() => window.print(), 50);
+});
 
 let legendOpen = false;
 $legendToggle.addEventListener("click", () => {
