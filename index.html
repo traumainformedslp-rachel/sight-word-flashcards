@@ -347,33 +347,58 @@
   }
 
   @media (max-width: 600px) {
-    body { padding: 16px 12px calc(16px + env(safe-area-inset-bottom)); }
-    .header { margin-bottom: 16px; }
-    .pills { gap: 5px; }
-    .pill { padding: 6px 10px; font-size: 11px; }
+    body { padding: 12px 12px calc(12px + env(safe-area-inset-bottom)); }
+    .header { margin-bottom: 12px; }
+
+    /* Horizontally scrollable filter pills (no wrap) */
+    .pills {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x proximity;
+      margin: 0 -12px 10px;
+      padding: 2px 12px 8px;
+      scrollbar-width: none;
+      gap: 6px;
+      -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 12px, #000 calc(100% - 12px), transparent 100%);
+              mask-image: linear-gradient(90deg, transparent 0, #000 12px, #000 calc(100% - 12px), transparent 100%);
+    }
+    .pills::-webkit-scrollbar { display: none; }
+    .pill { flex: 0 0 auto; scroll-snap-align: start; padding: 7px 12px; font-size: 11px; }
+
     .legend-grid { grid-template-columns: 1fr; }
-    .btn { padding: 12px 18px; font-size: 13px; flex: 1 1 0; }
-    .actions { gap: 10px; margin-top: 20px; }
+    .btn { padding: 13px 14px; font-size: 13px; flex: 1 1 0; min-width: 0; }
+    .actions { gap: 10px; margin-top: 18px; }
     .keyboard-hints { display: none; }
-    .controls { flex-wrap: wrap; gap: 8px; }
+    .controls { flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
     .control-group { gap: 4px; }
     .control-group .pill { padding: 6px 9px; font-size: 10px; }
-    .card-number { top: 16px; left: 14px; font-size: 10px; }
-    .card-pos { top: 14px; right: 14px; font-size: 10px; }
-    .card-hint, .card-brand { bottom: 10px; font-size: 9px; }
-    .card-hint { right: 14px; }
-    .card-brand { left: 14px; }
-    .card-accent-bar { left: 18px; right: 18px; }
+
+    /* Taller, more portrait-friendly card on phones */
+    .card-area, .actions { max-width: 480px; }
+    .card, .done-card { aspect-ratio: 4 / 3; }
+
+    .card-number { top: 14px; left: 14px; font-size: 10px; }
+    .card-pos { top: 12px; right: 14px; font-size: 10px; }
+    .card-hint { bottom: 10px; right: 14px; font-size: 9px; letter-spacing: 1.5px; }
+    .card-brand { display: none; }
+    .card-accent-bar { left: 18px; right: 18px; top: 8px; }
+
     .title { font-size: 12px; letter-spacing: 3px; }
     .subtitle { display: none; }
-    .done-emoji { font-size: 40px; }
+    .theme-toggle { padding: 6px 10px; font-size: 10px; }
+    .progress-stats { font-size: 10px; }
+    .done-emoji { font-size: 40px; margin-bottom: 10px; }
     .done-title { font-size: 22px; }
-    .done-stats { font-size: 11px; }
+    .done-stats { font-size: 11px; margin-bottom: 18px; }
   }
   @media (max-width: 380px) {
-    .btn { padding: 11px 12px; font-size: 12px; letter-spacing: 0.5px; }
+    .btn { padding: 12px 10px; font-size: 12px; letter-spacing: 0.5px; }
     .card-back-word { margin-bottom: 4px; }
     .card-back-pos { margin-bottom: 10px; }
+    .card-hint { display: none; }
+    .progress-stats .stat-learning,
+    .progress-stats .stat-known { font-size: 10px; }
   }
 </style>
 </head>
@@ -890,6 +915,84 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowRight" || e.key === "k") markKnown();
   if (e.key === "ArrowLeft" || e.key === "s") markLearning();
 });
+
+// ===== SWIPE GESTURES (mobile) =====
+// Tap to flip, swipe right = known, swipe left = still learning.
+(function attachSwipe() {
+  let sx = 0, sy = 0, moved = false, tracking = false;
+  const SWIPE_THRESHOLD = 60;   // px to commit a swipe
+  const DRAG_MAX = 140;         // px where opacity reaches 0
+
+  function activeCard() { return document.getElementById("theCard"); }
+
+  $cardArea.addEventListener("touchstart", (e) => {
+    const card = activeCard();
+    if (!card || animating) return;
+    const t = e.touches[0];
+    sx = t.clientX; sy = t.clientY;
+    moved = false; tracking = true;
+    card.style.transition = "none";
+  }, { passive: true });
+
+  $cardArea.addEventListener("touchmove", (e) => {
+    if (!tracking) return;
+    const t = e.touches[0];
+    const dx = t.clientX - sx, dy = t.clientY - sy;
+    if (Math.abs(dx) > 8 || Math.abs(dy) > 8) moved = true;
+    const card = activeCard();
+    if (!card) return;
+    // Only hijack horizontal drags — let vertical scroll pass through.
+    if (Math.abs(dx) > Math.abs(dy)) {
+      const o = Math.max(0.35, 1 - Math.abs(dx) / DRAG_MAX);
+      const rot = dx / 30;
+      card.style.transform = `translateX(${dx}px) rotate(${rot}deg)`;
+      card.style.opacity = o;
+    }
+  }, { passive: true });
+
+  $cardArea.addEventListener("touchend", (e) => {
+    if (!tracking) return;
+    tracking = false;
+    const card = activeCard();
+    const t = e.changedTouches[0];
+    const dx = t.clientX - sx, dy = t.clientY - sy;
+    const horizontal = Math.abs(dx) > Math.abs(dy);
+
+    if (card) {
+      card.style.transition = "transform 0.2s ease, opacity 0.2s ease";
+      card.style.transform = "";
+      card.style.opacity = "";
+    }
+
+    if (moved && horizontal && Math.abs(dx) > SWIPE_THRESHOLD) {
+      if (dx > 0) markKnown(); else markLearning();
+    } else if (!moved) {
+      // Treat as a tap → flip. The click handler will also fire; guard it.
+      swipeTapHandled = true;
+      flipCard();
+    }
+  });
+
+  $cardArea.addEventListener("touchcancel", () => {
+    tracking = false;
+    const card = activeCard();
+    if (card) {
+      card.style.transition = "transform 0.2s ease, opacity 0.2s ease";
+      card.style.transform = "";
+      card.style.opacity = "";
+    }
+  });
+})();
+
+// Suppress the synthetic click after a touch-tap so we don't double-flip.
+let swipeTapHandled = false;
+document.addEventListener("click", (e) => {
+  if (swipeTapHandled && e.target.closest("#theCard")) {
+    swipeTapHandled = false;
+    e.stopPropagation();
+    e.preventDefault();
+  }
+}, true);
 
 // ===== INIT =====
 buildLegend();
