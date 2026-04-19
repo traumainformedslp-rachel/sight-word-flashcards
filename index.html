@@ -70,18 +70,23 @@
     --keyboard-hints: #bbb;
   }
 
+  html { -webkit-text-size-adjust: 100%; }
   body {
     min-height: 100vh;
+    min-height: 100dvh;
     background: var(--bg);
     font-family: 'Outfit', sans-serif;
     color: var(--text);
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 24px 16px;
+    padding: 24px 16px calc(24px + env(safe-area-inset-bottom));
     overflow-x: hidden;
+    overscroll-behavior-y: contain;
     transition: background 0.3s, color 0.3s;
+    -webkit-tap-highlight-color: transparent;
   }
+  button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 
   .header { width: 100%; max-width: 680px; margin-bottom: 24px; }
 
@@ -167,6 +172,8 @@
     align-items: center; justify-content: center;
     cursor: pointer; position: relative; overflow: hidden;
     transition: background 0.4s ease;
+    user-select: none; -webkit-user-select: none;
+    touch-action: manipulation;
   }
   .card-accent-bar {
     position: absolute; top: 10px; left: 28px; right: 28px;
@@ -194,19 +201,23 @@
   .card-word {
     font-family: 'Outfit', sans-serif; font-weight: 800;
     letter-spacing: -2px; transition: all 0.3s ease;
+    max-width: 92%; text-align: center; line-height: 1;
+    word-break: break-word;
   }
-  .card-back { text-align: center; padding: 0 40px; }
+  .card-word.short { font-size: clamp(56px, 16vw, 96px); }
+  .card-word.long  { font-size: clamp(40px, 12vw, 72px); }
+  .card-back { text-align: center; padding: 0 clamp(16px, 6vw, 40px); max-width: 100%; }
   .card-back-word {
     font-family: 'Outfit', sans-serif; font-weight: 300;
-    font-size: 20px; opacity: 0.5; margin-bottom: 8px;
+    font-size: clamp(16px, 4.5vw, 20px); opacity: 0.5; margin-bottom: 8px;
   }
   .card-back-pos {
-    font-family: 'Space Mono', monospace; font-size: 12px;
+    font-family: 'Space Mono', monospace; font-size: clamp(10px, 2.8vw, 12px);
     opacity: 0.5; margin-bottom: 16px;
   }
   .card-back-sentence {
     font-family: 'Outfit', sans-serif; font-weight: 400;
-    font-size: 28px; line-height: 1.4;
+    font-size: clamp(18px, 5.2vw, 28px); line-height: 1.4;
   }
 
   /* Done state */
@@ -221,11 +232,12 @@
   .done-stats { font-family: 'Space Mono', monospace; font-size: 13px; color: var(--done-stats-color); margin-bottom: 24px; }
 
   /* Buttons */
-  .actions { display: flex; gap: 16px; margin-top: 28px; }
+  .actions { display: flex; gap: 16px; margin-top: 28px; width: 100%; max-width: 560px; }
   .btn {
     padding: 14px 32px; border-radius: 12px; border: none; cursor: pointer;
     font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 15px;
     transition: all 0.2s; text-transform: uppercase; letter-spacing: 1px;
+    min-height: 48px;
   }
   .btn:hover { transform: translateY(-2px); }
   .btn:active { transform: translateY(0); }
@@ -335,15 +347,33 @@
   }
 
   @media (max-width: 600px) {
+    body { padding: 16px 12px calc(16px + env(safe-area-inset-bottom)); }
+    .header { margin-bottom: 16px; }
     .pills { gap: 5px; }
     .pill { padding: 6px 10px; font-size: 11px; }
     .legend-grid { grid-template-columns: 1fr; }
-    .card-back-sentence { font-size: 22px; }
-    .btn { padding: 12px 22px; font-size: 13px; }
+    .btn { padding: 12px 18px; font-size: 13px; flex: 1 1 0; }
+    .actions { gap: 10px; margin-top: 20px; }
     .keyboard-hints { display: none; }
     .controls { flex-wrap: wrap; gap: 8px; }
     .control-group { gap: 4px; }
     .control-group .pill { padding: 6px 9px; font-size: 10px; }
+    .card-number { top: 16px; left: 14px; font-size: 10px; }
+    .card-pos { top: 14px; right: 14px; font-size: 10px; }
+    .card-hint, .card-brand { bottom: 10px; font-size: 9px; }
+    .card-hint { right: 14px; }
+    .card-brand { left: 14px; }
+    .card-accent-bar { left: 18px; right: 18px; }
+    .title { font-size: 12px; letter-spacing: 3px; }
+    .subtitle { display: none; }
+    .done-emoji { font-size: 40px; }
+    .done-title { font-size: 22px; }
+    .done-stats { font-size: 11px; }
+  }
+  @media (max-width: 380px) {
+    .btn { padding: 11px 12px; font-size: 12px; letter-spacing: 0.5px; }
+    .card-back-word { margin-bottom: 4px; }
+    .card-back-pos { margin-bottom: 10px; }
   }
 </style>
 </head>
@@ -656,7 +686,7 @@ function render() {
     document.getElementById("btnAgain").addEventListener("click", initDeck);
     $actions.style.display = "none";
   } else if (word) {
-    const fontSize = word.length > 5 ? 72 : 96;
+    const sizeClass = word.length > 5 ? "long" : "short";
     if (!flipped) {
       $cardArea.innerHTML = `
         <div class="card anim-enter" id="theCard"
@@ -666,7 +696,7 @@ function render() {
           <span class="card-pos" style="color:${pal.accent}">${pal.symbol} ${pal.label}</span>
           <span class="card-hint" style="color:${pal.text}">TAP TO FLIP</span>
           <span class="card-brand" style="color:${pal.accent}">MONTESSORI GRAMMAR</span>
-          <span class="card-word" style="color:${pal.text};font-size:${fontSize}px;text-shadow:0 0 60px ${pal.accent}33">${word}</span>
+          <span class="card-word ${sizeClass}" style="color:${pal.text};text-shadow:0 0 60px ${pal.accent}33">${word}</span>
         </div>`;
     } else {
       $cardArea.innerHTML = `
