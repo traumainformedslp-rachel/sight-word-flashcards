@@ -12,36 +12,36 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root{
-    --bg:#FEFCFA; --card:#FFFFFF; --tx:#2D2A3E; --mu:#7a7890; --bd:#ede8f5;
-    --soft:#f3eefa; --pu:#8a6cb8; --pu-deep:#6e5294; --pi:#d4718e;
-    --ag:linear-gradient(135deg,#8a6cb8,#d4718e);
-    --rainbow:linear-gradient(90deg,#F9C5C5,#FDDBB4,#FFF0A8,#C2EDD0,#BEE3F8,#D8C8F8,#EED4F8);
+    --bg:#fbf8f4; --card:#ffffff; --tx:#2a2724; --mu:#56504a; --bd:#e6dfd5;
+    --soft:#efe8f6; --pu:#7a5ea8; --pu-deep:#6a4f98; --pi:#c47086;
+    --ag:linear-gradient(90deg,#8dd4b0 0%,#b8a0d8 50%,#f4b5c5 100%);
+    --rainbow:linear-gradient(90deg,#8dd4b0 0%,#b8a0d8 50%,#f4b5c5 100%);
     --ff:'DM Sans',sans-serif;
     --fh:'Fraunces',Georgia,serif;
     --fm:'Space Mono',ui-monospace,monospace;
     --fc:'Outfit','DM Sans',sans-serif;
     --radius:18px;
-    --shadow-sm:0 2px 8px rgba(45,42,62,.05);
-    --shadow:0 4px 16px rgba(45,42,62,.08);
-    --mint:#5aaf80;
+    --shadow-sm:0 1px 2px rgba(40,36,32,.04),0 2px 6px rgba(40,36,32,.04);
+    --shadow:0 2px 4px rgba(40,36,32,.04),0 8px 24px rgba(40,36,32,.06);
+    --mint:#4f9c74;
   }
 
-  /* Dark theme (RTN plum palette) */
+  /* Dark theme — editorial calm */
   [data-theme="dark"] {
-    --bg:#17142a;
-    --card:#221d3a;
-    --tx:#ebeaf2;
-    --mu:#9e9ab4;
-    --bd:#322b4d;
-    --soft:#2b2447;
-    --pu:#b59bdc;
-    --pu-deep:#d0b8f0;
+    --bg:#1a1815;
+    --card:#232020;
+    --tx:#ece5d9;
+    --mu:#82796f;
+    --bd:#34302c;
+    --soft:#261e30;
+    --pu:#c4abe2;
+    --pu-deep:#d8c1ee;
     --shadow-sm:0 2px 8px rgba(0,0,0,.25);
     --shadow:0 4px 20px rgba(0,0,0,.4);
   }
-  [data-theme="dark"] .btn-known { box-shadow: 0 3px 14px rgba(181,155,220,.35); }
-  [data-theme="dark"] .btn-known:hover { box-shadow: 0 6px 22px rgba(181,155,220,.5); }
-  [data-theme="dark"] .pill.active { box-shadow: 0 3px 10px rgba(181,155,220,.3); }
+  [data-theme="dark"] .btn-known { box-shadow: 0 3px 14px rgba(196,171,226,.3); }
+  [data-theme="dark"] .btn-known:hover { box-shadow: 0 6px 22px rgba(196,171,226,.45); }
+  [data-theme="dark"] .pill.active { box-shadow: 0 3px 10px rgba(196,171,226,.25); }
 
   html { -webkit-text-size-adjust: 100%; }
   body {
@@ -1088,9 +1088,9 @@ document.addEventListener("click", (e) => {
   }
 }, true);
 
-// ===== THEME TOGGLE =====
+// ===== THEME TOGGLE — site-wide via 'rtn-theme' key =====
 (function initTheme(){
-  const KEY = 'sw-theme';
+  const KEY = 'rtn-theme';
   const root = document.documentElement;
   const btn = document.getElementById('themeToggle');
   const icon = btn ? btn.querySelector('.theme-icon') : null;
