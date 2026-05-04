@@ -7,41 +7,41 @@
 <meta name="description" content="Interactive sight word flashcards with Montessori grammar color coding. The first 100 children's picture book sight words (Green et al., 2024).">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Outfit:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root{
-    --bg:#fbf8f4; --card:#ffffff; --tx:#2a2724; --mu:#56504a; --bd:#e6dfd5;
-    --soft:#efe8f6; --pu:#7a5ea8; --pu-deep:#6a4f98; --pi:#c47086;
-    --ag:linear-gradient(90deg,#8dd4b0 0%,#b8a0d8 50%,#f4b5c5 100%);
-    --rainbow:linear-gradient(90deg,#8dd4b0 0%,#b8a0d8 50%,#f4b5c5 100%);
+    --bg:#ffffff; --card:#ffffff; --tx:#0f1419; --mu:#4a5560; --bd:#ebebeb;
+    --soft:rgba(42,157,143,0.08); --pu:#2a9d8f; --pu-deep:#1f7a6f; --pi:#1f7a6f;
+    --ag:#2a9d8f;
+    --rainbow:#2a9d8f;
     --ff:'DM Sans',sans-serif;
-    --fh:'Fraunces',Georgia,serif;
-    --fm:'Space Mono',ui-monospace,monospace;
-    --fc:'Outfit','DM Sans',sans-serif;
+    --fh:'DM Sans',sans-serif;
+    --fm:'DM Sans',sans-serif;
+    --fc:'DM Sans',sans-serif;
     --radius:18px;
     --shadow-sm:0 1px 2px rgba(40,36,32,.04),0 2px 6px rgba(40,36,32,.04);
     --shadow:0 2px 4px rgba(40,36,32,.04),0 8px 24px rgba(40,36,32,.06);
     --mint:#4f9c74;
   }
 
-  /* Dark theme — editorial calm */
+  /* Dark theme — teal hue */
   [data-theme="dark"] {
-    --bg:#1a1815;
-    --card:#232020;
-    --tx:#ece5d9;
-    --mu:#82796f;
-    --bd:#34302c;
-    --soft:#261e30;
-    --pu:#c4abe2;
-    --pu-deep:#d8c1ee;
+    --bg:#0d1b1a;
+    --card:#142322;
+    --tx:#e0edec;
+    --mu:#a3bfbd;
+    --bd:#1e3332;
+    --soft:rgba(42,157,143,0.12);
+    --pu:#3dbdad;
+    --pu-deep:#5ed4c4;
     --shadow-sm:0 2px 8px rgba(0,0,0,.25);
     --shadow:0 4px 20px rgba(0,0,0,.4);
   }
-  [data-theme="dark"] .btn-known { box-shadow: 0 3px 14px rgba(196,171,226,.3); }
-  [data-theme="dark"] .btn-known:hover { box-shadow: 0 6px 22px rgba(196,171,226,.45); }
-  [data-theme="dark"] .pill.active { box-shadow: 0 3px 10px rgba(196,171,226,.25); }
+  [data-theme="dark"] .btn-known { box-shadow: 0 3px 14px rgba(42,157,143,.3); }
+  [data-theme="dark"] .btn-known:hover { box-shadow: 0 6px 22px rgba(42,157,143,.45); }
+  [data-theme="dark"] .pill.active { box-shadow: 0 3px 10px rgba(42,157,143,.25); }
 
   html { -webkit-text-size-adjust: 100%; }
   body {
@@ -61,10 +61,10 @@
   }
   button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; font-family: var(--ff); }
 
-  /* Top & bottom rainbow strips */
+  /* Top & bottom rainbow strips — hidden */
   .rtn-rainbow {
-    height: 6px;
-    background: var(--rainbow);
+    height: 0;
+    display: none;
     position: fixed;
     top: 0; left: 0; right: 0;
     z-index: 1000;
@@ -115,7 +115,7 @@
   .pill.active {
     background: var(--ag); color: #fff;
     border-color: transparent;
-    box-shadow: 0 3px 10px rgba(138,108,184,.25);
+    box-shadow: 0 3px 10px rgba(42,157,143,.25);
   }
   .pill-dot {
     width: 7px; height: 7px; border-radius: 50%;
@@ -297,9 +297,9 @@
     background: var(--ag);
     color: #fff;
     flex: 1;
-    box-shadow: 0 3px 14px rgba(138,108,184,.3);
+    box-shadow: 0 3px 14px rgba(42,157,143,.3);
   }
-  .btn-known:hover { box-shadow: 0 6px 22px rgba(138,108,184,.4); }
+  .btn-known:hover { box-shadow: 0 6px 22px rgba(42,157,143,.4); }
 
   .keyboard-hints {
     margin-top: 20px;
